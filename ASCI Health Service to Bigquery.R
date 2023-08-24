@@ -17,7 +17,7 @@ jscape.con <- dbConnect(MySQL(), user=AB_HEALTH_USER, password=AB_HEALTH_PASS,
 # check the connection is working
 # dbListTables(con)
 
-upload_asci_to_bigquery <- function(connection,Table_Name,object.name,date.cols,upload.name = NA){
+upload_asci_to_bigquery <- function(connection,Table_Name,object.name,date.cols=NA,upload.name = NA){
   # object.name <- 'accounts'
   # date.cols <- c('FirstInstallDate')
   # connection <- jscape.con,
@@ -27,11 +27,12 @@ upload_asci_to_bigquery <- function(connection,Table_Name,object.name,date.cols,
   # upload.name <- NA'api_key'
   z <- dbGetQuery(connection,paste0('select * from ',object.name))
   
-  for(d in date.cols){
-    # d <- date.cols[1]
-    z[,d] <- as_datetime(z[,d])
-    z[which(is.na(z[,d])),d] <- as_datetime('1970-01-01 00:00:00.00')
-  }
+  if(!is.na(date.cols)){
+    for(d in date.cols){
+      # d <- date.cols[1]
+      z[,d] <- as_datetime(z[,d])
+      z[which(is.na(z[,d])),d] <- as_datetime('1970-01-01 00:00:00.00')
+  }}
   
   if(is.na(upload.name)){
     upload.name <- object.name
@@ -57,6 +58,17 @@ upload_asci_to_bigquery(con,'ASCI_Health_Service','allcaptures','CaptureDateTime
 ######### Latest Captures #########
 # LatestCap <- dbGetQuery(con,'select * from latestcapturedata')
 upload_asci_to_bigquery(con,'ASCI_Health_Service','latestcapturedata','CaptureDateTime','LatestCaptures')
+
+######### Job Step Reference Counts #########
+upload_asci_to_bigquery(con,'ASCI_Health_Service','JobStepReferenceCounts')
+
+######### Captures #########
+upload_asci_to_bigquery(con,'ASCI_Health_Service','Captures','CaptureDateTime')
+
+######### Job Step Types #########
+upload_asci_to_bigquery(con,'ASCI_Health_Service','JobStepTypes')
+
+
 
 ######### Instance Snapshots #########
 # upload_asci_to_bigquery('instancesnapshots',c("StartTimeUTC","EndTimeUTC"),'instancesnapshots')
