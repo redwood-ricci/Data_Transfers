@@ -6,3 +6,4 @@
 *.Rhistory*
 *.RData*
 *.Ruserdata*
+.httr-oauth-salesforcer-asci
