@@ -68,6 +68,10 @@ upload_asci_to_bigquery(con,'ASCI_Health_Service','Captures','CaptureDateTime')
 ######### Job Step Types #########
 upload_asci_to_bigquery(con,'ASCI_Health_Service','JobStepTypes')
 
+######### UI Commands #########
+upload_asci_to_bigquery(con,'ASCI_Health_Service','abcommands')
+upload_asci_to_bigquery(con,'ASCI_Health_Service','abcommandusage')
+
 
 
 ######### Instance Snapshots #########
