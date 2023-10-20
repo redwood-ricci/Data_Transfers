@@ -99,7 +99,6 @@ upload_OM_to_SQL_Server <- function(sql.server.con,object.name,upload.name = NA,
   
 }
 
-
 ######### ACCOUNTS #######
 for (t in om.tabs) {
   
@@ -114,3 +113,5 @@ for (t in om.tabs) {
 }
 dbDisconnect(con)
 dbDisconnect(ssms.con)
+
+
