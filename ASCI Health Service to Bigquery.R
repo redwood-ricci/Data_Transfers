@@ -18,16 +18,16 @@ jscape.con <- dbConnect(MySQL(), user=AB_HEALTH_USER, password=AB_HEALTH_PASS,
 # dbListTables(con)
 
 upload_asci_to_bigquery <- function(connection,Table_Name,object.name,date.cols=NA,upload.name = NA){
-  # object.name <- 'accounts'
-  # date.cols <- c('FirstInstallDate')
-  # connection <- jscape.con,
-  # Table_Name <- 'JSCAPE_Health_Service'
+  # object.name <- 'instancesnapshots'
+  # date.cols <- c("StartTimeUTC","EndTimeUTC")
+  # connection <- con
+  # Table_Name <- 'ASCI_Health_Service'
   # object.name <- 'api_key'
   # date.cols <- 'creationDate'
   # upload.name <- NA'api_key'
   z <- dbGetQuery(connection,paste0('select * from ',object.name))
   
-  if(!is.na(date.cols)){
+  if(all(!is.na(date.cols))){
     for(d in date.cols){
       # d <- date.cols[1]
       z[,d] <- as_datetime(z[,d])
@@ -72,10 +72,8 @@ upload_asci_to_bigquery(con,'ASCI_Health_Service','JobStepTypes')
 upload_asci_to_bigquery(con,'ASCI_Health_Service','abcommands')
 upload_asci_to_bigquery(con,'ASCI_Health_Service','abcommandusage')
 
-
-
 ######### Instance Snapshots #########
-# upload_asci_to_bigquery('instancesnapshots',c("StartTimeUTC","EndTimeUTC"),'instancesnapshots')
+upload_asci_to_bigquery(con,'ASCI_Health_Service','instancesnapshots',c("StartTimeUTC","EndTimeUTC"))
 
 
 upload_jscape_to_bigquery <- function(connection,Table_Name,object.name,date.cols,upload.name = NA){
