@@ -9,6 +9,7 @@ library(dplyr)
 library(httr)
 library(jsonlite)
 library(lubridate)
+library(tidyr)
 
 rmj.rmf.apis <- c('runmyjobs','runmyfinance')
 activity.api.key <- "delsNHbxSmZAbFZCDyBUAkqZsiyQFvEwu9gOUtgMvE19Jn29IDLBFahsPYkFXsL"
@@ -32,7 +33,8 @@ for (run_my in rmj.rmf.apis) {
   fromjson.customers <- fromJSON(content(response.customers,'text', encoding = "UTF-8"),flatten = TRUE)
   fromjson.customers$type <- run_my
   
-  activity.years <- c(2021,2022,2023) # add 2023 to this on Jan 1 2023. 
+  current_year <- as.integer(format(Sys.Date(), "%Y"))
+  activity.years <- seq(2021, current_year, by = 1)
   
   for (i in unique(fromjson.customers$customerid)) {
     # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
