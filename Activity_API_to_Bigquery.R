@@ -32,7 +32,7 @@ for (run_my in rmj.rmf.apis) {
   fromjson.customers <- fromJSON(content(response.customers,'text', encoding = "UTF-8"),flatten = TRUE)
   fromjson.customers$type <- run_my
   
-  activity.years <- c(2021,2022) # add 2023 to this on Jan 1 2023. 
+  activity.years <- c(2021,2022,2023) # add 2023 to this on Jan 1 2023. 
   
   for (i in unique(fromjson.customers$customerid)) {
     # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
