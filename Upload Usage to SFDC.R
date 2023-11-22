@@ -357,5 +357,6 @@ print(paste0("Ended at at: ",end.time," ",script.time,"Minutes"))
 
 dbDisconnect(con)
 
+print("Uploading JSCAPE Health Service")
 source("Upload SFDC JSCAPE Health Service.R")
 
