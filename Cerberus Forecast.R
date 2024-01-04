@@ -6,7 +6,7 @@ sheet.link <- "https://docs.google.com/spreadsheets/d/1rqIfU80NvNESI8OeSmRpsRcf7
 
 seed <- read_sheet(sheet.link,
                    sheet = 'R Import',
-                   range = "A2:R400")
+                   range = "A2:R750")
 
 # remove NA order date rows
 seed <- seed[which(!is.na(seed$OrderDate)),]
