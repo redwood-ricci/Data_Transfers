@@ -67,6 +67,9 @@ upload_asci_to_bigquery(con,'ASCI_Health_Service','Captures','CaptureDateTime')
 
 ######### Job Step Types #########
 upload_asci_to_bigquery(con,'ASCI_Health_Service','JobStepTypes')
+  
+######### AB UI Stats #########
+upload_asci_to_bigquery(con,'ASCI_Health_Service','generaluistats')
 
 ######### UI Commands #########
 upload_asci_to_bigquery(con,'ASCI_Health_Service','abcommands')
@@ -122,7 +125,13 @@ convert.if.can <- function(x){
     # convert any list columns to data frame
     list_cols <- names(r)[sapply(r, is.list)]
     for (l in list_cols) {
-      r[,l] <- lapply(r[,l], as.character)
+      r[,l] <- tryCatch({
+        r[,l] <- lapply(r[,l], as.character)
+      }, error = function(e) {
+        # If an error occurs, convert the first column to character using as.character
+        message("Error occurred, using as.character instead: ", e$message," row",i)
+        r[,l] <- as.character(r[,l])
+      })
     }
     
   }else{
@@ -130,6 +139,8 @@ convert.if.can <- function(x){
   }
 return(r)
 }
+
+
 
 # i <- 3
 # rm(df.master,df.server,df.server.domain,df.gateway)
