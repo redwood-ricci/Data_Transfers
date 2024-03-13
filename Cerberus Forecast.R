@@ -34,8 +34,11 @@ seed$f_expansion[which(seed$`Expansion Forecast` < seed$`Expansion Actual` | see
 # seed$f_flip <- round(na.subtraction(seed$f_flip,seed$`Flips - Maintenance`),2)
 
 # back out actual from forecast for all days in the past
-seed$f_flip[which(seed$OrderDate < Sys.Date())] <- round(na.subtraction(seed$f_flip[which(seed$OrderDate < Sys.Date())],
-                                                                        seed$`Flips - Maintenance`[which(seed$OrderDate < Sys.Date())]),2)
+# seed$f_flip[which(seed$OrderDate < Sys.Date())] <- round(na.subtraction(seed$f_flip[which(seed$OrderDate < Sys.Date())],
+#                                                                         seed$`Flips - Maintenance`[which(seed$OrderDate < Sys.Date())]),2)
+# # back out actual from forecast for all days
+seed$f_flip <- round(na.subtraction(seed$f_flip,seed$`Flips - Maintenance`),2)
+seed$f_flip[which(seed$f_flip<0)] <- 0
 
 # below is commented because we only upload forecast, no actuals
 
