@@ -75,7 +75,6 @@ upload$BookingType[which(upload$BookingType == "f_flip")] <- "Flips - Maintenanc
 
 
 upload <- upload[which(upload$Forecast != 0),]
-
 upload.to.bigquery(upload,dataset = 'R_Data','CerberusForecast')
 
 
