@@ -138,11 +138,12 @@ environment as Environment__c,
 jobExecutions as Job_Executions__c,
 cast(human_start as Date) as Date__c,
 'RMJ' as Product__c,
-c.salesforceAccountId as Account__c,
+coalesce(ac.salesforce_account,c.salesforceAccountId) as Account__c,
 contracts.opportunityId as Opportunity__c,
 
 from activeco.ContractServer.SaaS_Usage u
 left join `ContractServer.Customers` c on u.rmjPortalId = c.rmjPortalId
+left join `ContractServer.Activity_Customers` ac on u.rmjPortalId = ac.customerid
 left join(SELECT customer_salesforceAccountId, opportunityId, human_end,status
 FROM (
   SELECT customer_salesforceAccountId, opportunityId, human_end, status,
