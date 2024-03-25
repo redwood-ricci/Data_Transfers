@@ -152,9 +152,11 @@ FROM (
 )
 WHERE rn = 1) contracts on c.salesforceAccountId = contracts.customer_salesforceAccountId
 where date(human_start) >= DATE_SUB(DATE_TRUNC(DATE(CURRENT_DATE()), MONTH), INTERVAL 3 YEAR)
-and contracts.status = 'ACTIVE'; -- Only Active Contracts
+-- and contracts.status = 'ACTIVE'; -- Only Active Contracts
     "
   ))
+
+# View(account.usage[which(account.usage$RMJ_Portal_Id__c == 'new-york-university'),])
 
 ## get ASCI Usage Data
 # create a database connection object to ASCI Health Service
