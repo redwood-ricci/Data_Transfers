@@ -26,7 +26,7 @@ rm(response.all.customers,fromjson.customers)
 start.time <- format(as.numeric(as.POSIXct('2000-01-01')) * 1000,scientific = FALSE) # *1000 is to convert to miliseconds
 end.time <- format(as.numeric(as.POSIXct('2040-01-31')) * 1000,scientific = FALSE)
 
-# pick up latent Activit API customers
+# pick up latent Activity API customers
 portal.customers <- query.bq(
 "
 select
@@ -36,7 +36,7 @@ from `ContractServer.Activity_Customers`
 "
 )
 
-portal.ids <- unique(customers$rmjPortalId,portal.customers$customerid)
+portal.ids <- unique(c(customers$rmjPortalId,portal.customers$customerid))
 
 for (i in portal.ids) {
   # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
