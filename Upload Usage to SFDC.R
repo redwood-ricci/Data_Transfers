@@ -96,7 +96,7 @@ table(usage.upsert$sf__Error)
 
 print('Getting Daily Usage')
 
-og.account.usage <- query.bq("select distinct Id,R_Program_Id__c from `skyvia.Daily_Usage__c`")
+og.account.usage <- query.bq("select distinct Id,R_Program_Id__c from `skyvia.Daily_Usage__c`",page.size = 1000)
 
 ### This commented out portion includes inactive contracts
 
