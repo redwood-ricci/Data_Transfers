@@ -11,14 +11,14 @@ opp.tables <- ff.tables[which(grepl("^Opportunity_",ff.tables$table_name)),]
 opp.tables <- opp.tables[order(opp.tables$creation_time),]
 
 # get max opp date
-max.date <- query.bq("
-select max(Snapshot_Time) from `activeco.R_Data.Opportunity_History`
-         ")
-opp.tables <- opp.tables[which(as.Date(opp.tables$creation_time) > as.Date(max.date$f0_[1])),]
+# max.date <- query.bq("
+# select max(Snapshot_Time) from `activeco.R_Data.Opportunity_History`
+#          ")
+# opp.tables <- opp.tables[which(as.Date(opp.tables$creation_time) > as.Date(max.date$f0_[1])),]
 
 # used for restarting
-# max.date <- as.Date('2024-01-01')
-# opp.tables <- opp.tables[which(as.Date(opp.tables$creation_time) > max.date),]
+max.date <- as.Date('2024-01-01')
+opp.tables <- opp.tables[which(as.Date(opp.tables$creation_time) > max.date),]
 
 # opp.tables$quarter <- quarter(opp.tables$snapshot_time_ms,with_year = TRUE)
 # # only opp tables after Q3
@@ -45,10 +45,10 @@ for (t in 1:nrow(opp.tables)) {
   o.CloseDate,
   o.Billing_Period_1_Amount__c / ct.ConversionRate as FYV_USD,
   o.ACV_Bookings__c / ct.ConversionRate as qb_usd,
-  o.Manager_s_Forecast__c / ct.ConversionRate as forecast_usd,
-  o.Software_Qualified_Bookings__c,
-  o.RW_Expansion_Amount__c,
-  o.Manager_s_Expansion_Forecast__c,
+  o.Manager_s_Forecast__c / ct.ConversionRate as Software_Forecast_USD,
+  o.Software_Qualified_Bookings__c / ct.ConversionRate as Software_USD,
+  o.RW_Expansion_Amount__c / ct.ConversionRate as Expansion_USD,
+  o.Manager_s_Expansion_Forecast__c/ ct.ConversionRate as Expansion_Forecast_USD,
   o.StageName,
   o.Type,
   o.Renewal_Category__c,
@@ -73,10 +73,10 @@ for (t in 1:nrow(opp.tables)) {
   o.CloseDate,
   o.Billing_Period_1_Amount__c / ct.ConversionRate as FYV_USD,
   o.ACV_Bookings__c / ct.ConversionRate as qb_usd,
-  o.Manager_s_Forecast__c / ct.ConversionRate as forecast_usd,
-  null as Software_Qualified_Bookings__c,
-  null as RW_Expansion_Amount__c,
-  null as Manager_s_Expansion_Forecast__c,
+  o.Manager_s_Forecast__c / ct.ConversionRate as Software_Forecast_USD,
+  null as Software_USD,
+  null as Expansion_USD,
+  null as Expansion_Forecast_USD,
   o.StageName,
   o.Type,
   o.Renewal_Category__c,
