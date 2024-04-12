@@ -11,14 +11,14 @@ opp.tables <- ff.tables[which(grepl("^Opportunity_",ff.tables$table_name)),]
 opp.tables <- opp.tables[order(opp.tables$creation_time),]
 
 # get max opp date
-# max.date <- query.bq("
-# select max(Snapshot_Time) from `activeco.R_Data.Opportunity_History`
-#          ")
-# opp.tables <- opp.tables[which(as.Date(opp.tables$creation_time) > as.Date(max.date$f0_[1])),]
+max.date <- query.bq("
+select max(Snapshot_Time) from `activeco.R_Data.Opportunity_History`
+         ")
+opp.tables <- opp.tables[which(as.Date(opp.tables$creation_time) > as.Date(max.date$f0_[1])),]
 
 # used for restarting
-max.date <- as.Date('2024-01-01')
-opp.tables <- opp.tables[which(as.Date(opp.tables$creation_time) > max.date),]
+# max.date <- as.Date('2024-01-01')
+# opp.tables <- opp.tables[which(as.Date(opp.tables$creation_time) > max.date),]
 
 # opp.tables$quarter <- quarter(opp.tables$snapshot_time_ms,with_year = TRUE)
 # # only opp tables after Q3
