@@ -13,6 +13,15 @@ api.key <- "ylMKsntx4LU4oqoRRRqrTyua29UEhgwSxMLo6ytYqvyKL4FF3aoUn6AvMCAKeJ1k"
 
 
 # get a list of all the customers
+response.all.clients <- 
+  GET("https://contracting.runmyjobs.cloud/api/v1.0/consumption/clients",
+      add_headers(accept = 'application/json',
+                  `X-Api-Key` = api.key))
+fromjson.clients <- fromJSON(content(response.all.clients,'text', encoding = "UTF-8"))
+all.clients <- fromjson.clients
+rm(response.all.clients,fromjson.clients)
+
+
 response.all.customers <- 
   GET("https://contracting.runmyjobs.cloud/api/v1.0/customers",
       add_headers(accept = 'application/json',
@@ -36,7 +45,11 @@ from `ContractServer.Activity_Customers`
 "
 )
 
-portal.ids <- unique(c(customers$rmjPortalId,portal.customers$customerid))
+portal.ids <- unique(c(customers$rmjPortalId,portal.customers$customerid,all.clients$customerCode))
+# remove some bad portal IDs
+portal.ids <- portal.ids[which(!grepl("\'",portal.ids))]
+portal.ids <- portal.ids[which(!grepl(" ",portal.ids))]
+portal.ids <- portal.ids[which(!is.na(portal.ids))]
 
 for (i in portal.ids) {
   # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
@@ -76,6 +89,7 @@ for (i in portal.ids) {
   }else(warning(paste(i,": No Usage")))
   # remove consumption record, rinse and repeat
   rm(consumption)
+  Sys.sleep(1) # sleep for a beat to avoid overloading server
 }
 # fill in zeros for cases of no job executions
 total_consumption$jobExecutions[which(is.na(total_consumption$jobExecutions))] <- 0
