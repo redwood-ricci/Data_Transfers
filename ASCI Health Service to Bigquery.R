@@ -73,11 +73,18 @@ upload_asci_to_bigquery(con,'ASCI_Health_Service','generaluistats')
 
 ######### UI Commands #########
 upload_asci_to_bigquery(con,'ASCI_Health_Service','abcommands')
-upload_asci_to_bigquery(con,'ASCI_Health_Service','abcommandusage')
 
 ######### Instance Snapshots #########
 upload_asci_to_bigquery(con,'ASCI_Health_Service','instancesnapshots',c("StartTimeUTC","EndTimeUTC"))
 
+###### Execution Templates ###############
+upload_asci_to_bigquery(con,'ASCI_Health_Service','executiontemplatedata')
+
+######## Products ############
+upload_asci_to_bigquery(con,'ASCI_Health_Service','licensedproducts')
+
+######## Scheduler Data ############
+upload_asci_to_bigquery(con,'ASCI_Health_Service','schedulerdata')
 
 upload_jscape_to_bigquery <- function(connection,Table_Name,object.name,date.cols,upload.name = NA){
   # object.name <- 'accounts'
