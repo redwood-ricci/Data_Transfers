@@ -92,6 +92,10 @@ for (t in 1:nrow(opp.tables)) {
   )
   
   forecast.opps$Snapshot_Time <- snapshot.time
+  # change huge opp from SAP expansion to New Business # Bayer AG moved from SAP - Expansion to New Business because of no BPA contract 2024-04-26
+  forecast.opps$Type[which(forecast.opps$Id == '0063t000013TtUjAAK')] <- "New Business"
+  forecast.opps$Warboard_Category__c[which(forecast.opps$Id == '0063t000013TtUjAAK')] <- "New"
+  
   # upload.to.bigquery(forecast.opps,'R_Data','Opportunity_History') # first upload
   print(paste0("Writing"))
   bq_table_upload('activeco.R_Data.Opportunity_History',forecast.opps,write_disposition ='WRITE_APPEND')
