@@ -29,15 +29,20 @@ forecastId <- "forecast"
 headers <- c(
   'apikey' = paste(api_key),
    'Content-Type' = 'application/json',
-  'forecastId' = forecastId,
-  'typesToExport' = 'forecast_updated'
-  #'timePeriod' = '2024_Q1'
+  'forecastId' = 'forecast_new_summary',
+  'typesToExport' = 'forecast_updated', 
+  'scopeId' = '332801::MGR'
 )
+  # 'scopeId' = '{type:FORECAST ROLE , userId:332801, userType:MGR}'
+  # 'scopeId' = "{\\\"type\\\":\\\"FORECAST_ROLE\\\",\\\"userId\\\":332801,\\\"userType\\\":\\\"MGR\\\"}"
+  # 'scopeId' = "{\"type\":\"FORECAST_ROLE\",\"userId\":332801,\"userType\":\"MGR\"}"
+  # 'scopeId' = "{type:FORECAST_ROLE,userId:332801,userType:MGR}"
+  #'timePeriod' = '2024_Q1'
 
 # Make the GET request (adjust parameters and method as needed)
 response <- GET(
   paste0(url,forecastId),
-  add_headers(.headers=headers)
+  add_headers(.headers=headers),verbose()
   )
 
 # Check the status code of the response

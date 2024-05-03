@@ -36,7 +36,7 @@ from `ContractServer.Activity_Customers`
 "
 )
 
-portal.ids <- unique(customers$rmjPortalId,portal.customers$customerid)
+portal.ids <- unique(c(customers$rmjPortalId,portal.customers$customerid))
 
 for (i in portal.ids) {
   # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
