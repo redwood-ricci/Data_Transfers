@@ -13,6 +13,15 @@ api.key <- "ylMKsntx4LU4oqoRRRqrTyua29UEhgwSxMLo6ytYqvyKL4FF3aoUn6AvMCAKeJ1k"
 
 
 # get a list of all the customers
+response.all.clients <- 
+  GET("https://contracting.runmyjobs.cloud/api/v1.0/consumption/clients",
+      add_headers(accept = 'application/json',
+                  `X-Api-Key` = api.key))
+fromjson.clients <- fromJSON(content(response.all.clients,'text', encoding = "UTF-8"))
+all.clients <- fromjson.clients
+rm(response.all.clients,fromjson.clients)
+
+
 response.all.customers <- 
   GET("https://contracting.runmyjobs.cloud/api/v1.0/customers",
       add_headers(accept = 'application/json',
@@ -26,7 +35,7 @@ rm(response.all.customers,fromjson.customers)
 start.time <- format(as.numeric(as.POSIXct('2000-01-01')) * 1000,scientific = FALSE) # *1000 is to convert to miliseconds
 end.time <- format(as.numeric(as.POSIXct('2040-01-31')) * 1000,scientific = FALSE)
 
-# pick up latent Activit API customers
+# pick up latent Activity API customers
 portal.customers <- query.bq(
 "
 select
@@ -36,7 +45,12 @@ from `ContractServer.Activity_Customers`
 "
 )
 
-portal.ids <- unique(c(customers$rmjPortalId,portal.customers$customerid))
+
+portal.ids <- unique(c(customers$rmjPortalId,portal.customers$customerid,all.clients$customerCode))
+# remove some bad portal IDs
+portal.ids <- portal.ids[which(!grepl("\'",portal.ids))]
+portal.ids <- portal.ids[which(!grepl(" ",portal.ids))]
+portal.ids <- portal.ids[which(!is.na(portal.ids))]
 
 for (i in portal.ids) {
   # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
@@ -76,6 +90,7 @@ for (i in portal.ids) {
   }else(warning(paste(i,": No Usage")))
   # remove consumption record, rinse and repeat
   rm(consumption)
+  Sys.sleep(1) # sleep for a beat to avoid overloading server
 }
 # fill in zeros for cases of no job executions
 total_consumption$jobExecutions[which(is.na(total_consumption$jobExecutions))] <- 0
@@ -105,9 +120,15 @@ customers$shippingAddress <- NULL
 print("Uploading to Bigquery")
 data.set.bq <- bq_dataset(billing,"ContractServer") # create redwood dataset
 
+# make a list of all known portalIDs to upload
+known.ids <- query.bq("select distinct rmjPortalId from ContractServer.SaaS_Usage")
+all.portalIds <- unique(c(portal.ids,known.ids$rmjPortalId))
+all.portalIds <- data.frame(rmjportalid = all.portalIds)
+
 # set the BQ table and upload the data
 upload.to.bigquery(total_consumption,"ContractServer","SaaS_Usage")
 upload.to.bigquery(customers,"ContractServer","Customers")
+upload.to.bigquery(all.portalIds,"ContractServer","AllPortalIds")
 
 # upload the usage contracts
 rm(list = ls())
