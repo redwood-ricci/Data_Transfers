@@ -45,6 +45,7 @@ from `ContractServer.Activity_Customers`
 "
 )
 
+
 portal.ids <- unique(c(customers$rmjPortalId,portal.customers$customerid,all.clients$customerCode))
 # remove some bad portal IDs
 portal.ids <- portal.ids[which(!grepl("\'",portal.ids))]
@@ -119,9 +120,15 @@ customers$shippingAddress <- NULL
 print("Uploading to Bigquery")
 data.set.bq <- bq_dataset(billing,"ContractServer") # create redwood dataset
 
+# make a list of all known portalIDs to upload
+known.ids <- query.bq("select distinct rmjPortalId from ContractServer.SaaS_Usage")
+all.portalIds <- unique(c(portal.ids,known.ids$rmjPortalId))
+all.portalIds <- data.frame(rmjportalid = all.portalIds)
+
 # set the BQ table and upload the data
 upload.to.bigquery(total_consumption,"ContractServer","SaaS_Usage")
 upload.to.bigquery(customers,"ContractServer","Customers")
+upload.to.bigquery(all.portalIds,"ContractServer","AllPortalIds")
 
 # upload the usage contracts
 rm(list = ls())
