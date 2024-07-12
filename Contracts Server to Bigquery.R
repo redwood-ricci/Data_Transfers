@@ -94,6 +94,9 @@ for (o in 1:nrow(contracts)) { # this requires opportunity ID to be a unique fie
   rmj.portal.id <- contracts$customer.rmjPortalId[o]
   print(paste0("Contract: ",rmj.portal.id))
   
+  # list of customers missing portal ID
+  # paste.excel(contracts[which(is.na(contracts$customer.rmjPortalId)),c("customer.name","customer.salesforceAccountId")])
+  
   contract.periods <- as.data.frame(contracts$contractPeriods[o])
   contract.periods$opportunityId <- opp.id
   contract.periods$human.start <- as.Date(paste(contract.periods$startDate.year,
@@ -108,7 +111,14 @@ for (o in 1:nrow(contracts)) { # this requires opportunity ID to be a unique fie
   contract.periods$usage_period <- contracts$usagePeriod[o]
   
   # add the contract deployment type to the contract object this is not a usage period
-  contracts$DeploymentType[o] <- paste(unique(contracts$locationCounts[[o]]$deploymentType),sep = ',')
+  if(is.null(unique(contracts$locationCounts[[o]]$deploymentType))){
+    # some contracts are missing deployment type, this if statement is for error handling
+    deploy <- 'Unknown'
+  }else {
+    deploy <- unique(contracts$locationCounts[[o]]$deploymentType)
+  }
+  
+  contracts$DeploymentType[o] <- deploy
   contracts$human.start[o] <- as.Date(min(contract.periods$human.start, na.rm = T))
   contracts$human.end[o]   <- as.Date(max(contract.periods$human.end, na.rm = T))
   

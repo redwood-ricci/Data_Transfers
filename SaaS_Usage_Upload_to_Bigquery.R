@@ -56,6 +56,7 @@ for (i in portal.ids) {
   # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
   # i <- "richemont-international-sa"
   # i <- "new-york-university"
+  # 
   print(i)
   client.code <- i
   response.usage <- 

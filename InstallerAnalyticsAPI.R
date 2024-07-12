@@ -142,3 +142,9 @@ sf_update(
 # )
 
 }
+
+
+# write_sheet(
+#   installs,
+#   "https://docs.google.com/spreadsheets/d/1noQVZjs0R7xZ1Qtzi00P65LQPGlKqza-oURTek6oiOY/edit?gid=0#gid=0"
+# )

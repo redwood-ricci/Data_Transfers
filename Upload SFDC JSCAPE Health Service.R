@@ -49,7 +49,7 @@ where id in (
 
 missing.customers <- JSCAPE.Health[which(!(JSCAPE.Health$SF_AccountId %in% og$Id)),]
 
-if(length(missing.customers)>0){
+if(nrow(missing.customers)>0){
   print("uploading missing JSCAPE customers")
   write_sheet_keep_sheet_format(missing.customers,
                               "https://docs.google.com/spreadsheets/d/1B59CrHYX14q35lB5CrFtZd_EGFDtNNA21yOrUJ6gUTs/edit#gid=0",
