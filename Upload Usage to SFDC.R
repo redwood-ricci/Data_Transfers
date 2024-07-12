@@ -10,6 +10,25 @@ library(RMySQL)
 
 # on prem customer examples:
 # Border State Industries, Inc.	0013t00002LzTIxAAN	RunMyJobs	0063t000010lGe3AAE
+print("Create BigQuery RMJ Mapping Table")
+zzz <- query.bq(
+  "
+  create or replace table ContractServer.PortalSalesforceAccountMap as (
+select
+distinct
+coalesce(
+    case when ac.customerid in ('dupont','agco-limited') then null else ac.customerid end, c.rmjPortalId,du.RMJ_Portal_Id__c) as rmjPortalId -- dupont and agco are wrong in portal. This is a patch
+,coalesce(
+    case when ac.salesforce_account in ('0013t00002LzT8sAAF','0013t00002N6dYGAAZ') then null else ac.salesforce_account end, c.salesforceAccountId,du.Account_ID__c) as salesforceAccountId
+from `ContractServer.Activity_Customers` ac
+full join ContractServer.Customers c on ac.customerid = c.rmjPortalId
+full join (select distinct RMJ_Portal_Id__c,Account_ID__c from `skyvia.Usage__c`) du on du.RMJ_Portal_Id__c = c.rmjPortalId
+where coalesce(ac.customerid,c.rmjPortalId,du.RMJ_Portal_Id__c) is not null
+);
+  "
+  
+)
+
 print(paste0("Upload Usage to SFDC ",Sys.Date()))
 
 print('Uploading Usage Periods')
@@ -50,6 +69,12 @@ SFDC.usage <- query.bq("select * from `skyvia.Usage__c`")
 # table(SFDC.usage$R_Program_Id__c %in% usage$R_Program_Id__c)
 # View(SFDC.usage[which(!(SFDC.usage$R_Program_Id__c %in% usage$R_Program_Id__c)),])
 sf_auth(cache = ".httr-oauth-salesforcer-asci")
+# if error uses default port 1410 
+# run in command prompt to see where port is un use
+# netstat -ano | findstr :1410
+# run to kill that process
+# taskkill /PID <PID> /F
+
 
 delete.records <- SFDC.usage[which(!(SFDC.usage$R_Program_Id__c %in% usage$R_Program_Id__c)),]
 
@@ -136,22 +161,21 @@ select
 u.rmjPortalId as RMJ_Portal_Id__c,
 environment as Environment__c,
 jobExecutions as Job_Executions__c,
-cast(human_start as Date) as Date__c,
+cast(u.Date as Date) as Date__c,
 'RMJ' as Product__c,
-coalesce(ac.salesforce_account,c.salesforceAccountId) as Account__c,
+pm.salesforceAccountId as Account__c,
 contracts.opportunityId as Opportunity__c,
 
 from activeco.ContractServer.SaaS_Usage u
-left join `ContractServer.Customers` c on u.rmjPortalId = c.rmjPortalId
-left join `ContractServer.Activity_Customers` ac on u.rmjPortalId = ac.customerid
+left join `ContractServer.PortalSalesforceAccountMap` pm on u.rmjPortalId = pm.rmjPortalId
 left join(SELECT customer_salesforceAccountId, opportunityId, human_end,status
 FROM (
   SELECT customer_salesforceAccountId, opportunityId, human_end, status,
     ROW_NUMBER() OVER (PARTITION BY customer_salesforceAccountId ORDER BY human_end DESC) as rn
   FROM `ContractServer.Contracts`
 )
-WHERE rn = 1) contracts on c.salesforceAccountId = contracts.customer_salesforceAccountId
-where date(human_start) >= DATE_SUB(DATE_TRUNC(DATE(CURRENT_DATE()), MONTH), INTERVAL 3 YEAR)
+WHERE rn = 1) contracts on pm.salesforceAccountId = contracts.customer_salesforceAccountId
+where date(u.Date) >= DATE_SUB(DATE_TRUNC(DATE(CURRENT_DATE()), MONTH), INTERVAL 3 YEAR)
 -- and contracts.status = 'ACTIVE'; -- Only Active Contracts
     "
   ))

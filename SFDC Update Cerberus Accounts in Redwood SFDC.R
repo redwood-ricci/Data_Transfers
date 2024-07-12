@@ -52,8 +52,8 @@ up$Application_Areas__c[which(up$Application_Areas__c == "")] <- NA
 
 up$helper <- NULL
 og$helper <- NULL
-# sf_auth(login_url = 'https://oneredwood.my.salesforce.com/',verbose = TRUE,cache = TRUE)
-sf_auth(cache = '.httr-oauth-OneRedwood')
+sf_auth(login_url = 'https://oneredwood.my.salesforce.com/',verbose = TRUE,cache = TRUE)
+# sf_auth(cache = '.httr-oauth-OneRedwood')
 
 if(nrow(up)>0){
 print("Uploading to SFDC")
