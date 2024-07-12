@@ -71,14 +71,10 @@ usage.list.upload <- list()
 for (i in portal.ids) {
   # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
   # i <- "richemont-international-sa"
-<<<<<<< HEAD
   # i <- "new-york-university"
-  # 
-=======
   # i <- "staples-europe-bv"
   # i <- "apple"
   # i <- "asdf"
->>>>>>> 4d74456d2bdc687239657d9f537ec79560e6a020
   print(i)
   client.code <- i
   timezone <- sfdc.mapping$TimeZone[which(sfdc.mapping$rmjPortalId == client.code)]
