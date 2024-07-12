@@ -6,7 +6,11 @@ library(jsonlite)
 url <- "https://api.clari.com/v4/forecast/"
 export.url <- "https://api.clari.com/v4/export/forecast/"
 api_key <- "f7ad3871-2233-4b85-b81e-8b1209551f66474998-0"
-forecastId <- "forecast_new_summary"
+# forecastId <- "forecast_new_summary"
+# forecastId <- "renewals"
+# forecastId <- "forecast"
+forecastId <- c("renewals",
+                "forecast")
 # Set your API key or token for authentication
 headers <- c(
   'apikey' = paste(api_key)
