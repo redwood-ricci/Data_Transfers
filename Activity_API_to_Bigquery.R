@@ -10,9 +10,14 @@ library(httr)
 library(jsonlite)
 library(lubridate)
 library(tidyr)
+library(data.table)
 
 rmj.rmf.apis <- c('runmyjobs','runmyfinance')
 activity.api.key <- "delsNHbxSmZAbFZCDyBUAkqZsiyQFvEwu9gOUtgMvE19Jn29IDLBFahsPYkFXsL"
+
+activity.list <- list()
+customer.master.list <- list()
+activity.master.list <- list()
 
 for (run_my in rmj.rmf.apis) {
   # run_my <- 'runmyfinance'
@@ -34,7 +39,7 @@ for (run_my in rmj.rmf.apis) {
   fromjson.customers$type <- run_my
   
   current_year <- as.integer(format(Sys.Date(), "%Y"))
-  activity.years <- seq(2021, current_year, by = 1)
+  activity.years <- seq(2024, current_year, by = 1)
   
   for (i in unique(fromjson.customers$customerid)) {
     # i <- "john-deere-and-company"  # unique(customers$rmjPortalId)[5]
@@ -65,24 +70,34 @@ for (run_my in rmj.rmf.apis) {
         usage$rmjPortalId <- i
         usage$year <- y
         usage$type <- run_my
-        if(exists("customer.activity")){
-          customer.activity <- bind_rows(customer.activity,usage)
-        }else{
-          customer.activity <- usage
-        }
+        
+        activity.list <- append(activity.list, list(usage))
+        
+        # if(exists("customer.activity")){
+        #   customer.activity <- bind_rows(customer.activity,usage)
+        # }else{
+        #   customer.activity <- usage
+        # }
       } # close year
     } # close activity
   } # close customer
   
-  if(exists("customer.master")){
-    customer.master <- bind_rows(customer.master,fromjson.customers)
-    activity.master <- bind_rows(activity.master,fromjson.activity)
-  }else{
-    customer.master <- fromjson.customers
-    activity.master <- fromjson.activity
-  }
+  customer.master.list <- append(customer.master.list, list(fromjson.customers))
+  activity.master.list <- append(activity.master.list, list(fromjson.activity))
+  
+  # if(exists("customer.master")){
+  #   customer.master <- bind_rows(customer.master,fromjson.customers)
+  #   activity.master <- bind_rows(activity.master,fromjson.activity)
+  # }else{
+  #   customer.master <- fromjson.customers
+  #   activity.master <- fromjson.activity
+  # }
   
 } # close run_my portal type
+
+customer.activity <- rbindlist(activity.list, use.names = TRUE, fill = TRUE)
+customer.master <- rbindlist(customer.master.list, use.names = TRUE, fill = TRUE)
+activity.master <- rbindlist(activity.master.list, use.names = TRUE, fill = TRUE)
 
 c2 <- pivot_longer(customer.activity,
                    cols = starts_with("data."),
@@ -100,3 +115,26 @@ upload.to.bigquery(c2,'ContractServer','Activity')
 upload.to.bigquery(customer.master,'ContractServer','Activity_Customers')
 
 source("Upload Usage to SFDC.R")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

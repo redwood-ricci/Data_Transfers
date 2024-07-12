@@ -204,7 +204,9 @@ upload.to.bigquery(usage.periods,'ContractServer','Usage_Periods')
 # write_sheet(periods,"https://docs.google.com/spreadsheets/d/1Sjil00dR-gGuW_VkkbIpqMKJqeAP9RPuk0aqJcRNb0g/edit#gid=1988424249",
 #             sheet = 'Contract Periods')
 rm(list = ls())
-source('Activity_API_to_Bigquery.R')
+# can comment / uncomment here to skip activity API upload because it's slow
+# source('Activity_API_to_Bigquery.R')
+source("Upload Usage to SFDC.R")
 
 
 
