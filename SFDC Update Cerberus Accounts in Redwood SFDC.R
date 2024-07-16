@@ -31,7 +31,8 @@ up$Application_Areas__c[which(!is.na(up$Application_Areas__c))] <- paste0(up$App
 up$Application_Areas__c[which(is.na(up$Application_Areas__c))] <- 'Cerberus'
 names(up)[1] <- 'id'
 
-up$Application_Areas__c <- gsub(";Cerberus","",up$Application_Areas__c)
+# commented out, not sure why this line was here
+# up$Application_Areas__c <- gsub(";Cerberus","",up$Application_Areas__c)
 
 # remove Cerberus from the churned accounts
 up$Application_Areas__c[which.churned] <- gsub(';Cerberus','',up$Application_Areas__c[which.churned])
@@ -57,15 +58,16 @@ sf_auth(login_url = 'https://oneredwood.my.salesforce.com/',verbose = TRUE,cache
 
 if(nrow(up)>0){
 print("Uploading to SFDC")
-  make.sfdc.update(
-    "Update Cerberus Customers in OneRedwood",
-    og,
-    up,
-    'Account',
-    "Updating Cerberus Customers. See SFDC Update Cerberus Accounts in Redwood SFDC.R"
-  )
+  sf_update(up,"Account") # simple account update
+    # make.sfdc.update(
+  #   "Update Cerberus Customers in OneRedwood",
+  #   og,
+  #   up,
+  #   'Account',
+  #   "Updating Cerberus Customers. See SFDC Update Cerberus Accounts in Redwood SFDC.R"
+  # )
 }
-
+# sf_update(up,"Account")
 # # upload matched accounts to OneRedwood
 # act.up <- seed[,c("OneRedwood_Account","Cerb_Accounts_Matched")]
 # og.act.up <- seed[which(seed$OneRedwood_Account %in% act.up$OneRedwood_Account),c("OneRedwood_Account","og_Cerb_Id","Cerb_Accounts_Matched")]
