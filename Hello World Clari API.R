@@ -1,12 +1,13 @@
 source('ActiveCo Functions.R')
 library(httr)
 library(jsonlite)
+library(data.table)
 
 # Set the API endpoint URL
 url <- "https://api.clari.com/v4/forecast/"
 export.url <- "https://api.clari.com/v4/export/forecast/"
 api_key <- "f7ad3871-2233-4b85-b81e-8b1209551f66474998-0"
-# forecastId <- "forecast_new_summary"
+forecastId <- "forecast_new_summary"
 # forecastId <- "renewals"
 # forecastId <- "forecast"
 forecastId <- c("renewals",
@@ -25,9 +26,17 @@ query.params <- list(
 # convert params to JSON for API call
 query.json <- toJSON(query.params,auto_unbox = TRUE)
 
+entries.df.list <- list()
+users.df.list <- list()
+field.map.df.list <- list()
+time.period.map.df.list <- list()
+time.frame.map.df.list <- list()
+
 # Make the GET request (adjust parameters and method as needed)
+for( i in 1:length(forecastId)) {
+  print(forecastId[i])
 response <- POST(
-  paste0(export.url,forecastId),
+  paste0(export.url,forecastId[i]),
   add_headers(.headers=headers),
   body = query.json
 )
@@ -64,6 +73,27 @@ users <- f.cast$users
 field.map <- f.cast$fields
 time.period.map <- f.cast$timePeriods
 time.frame.map <- f.cast$timeFrames
+
+entries.df.list <- append(entries.df.list, list(entries))
+users.df.list <- append(users.df.list, list(users))
+field.map.df.list <- append(field.map.df.list, list(field.map))
+time.period.map.df.list <- append(time.period.map.df.list, list(time.period.map))
+time.frame.map.df.list <- append(time.frame.map.df.list, list(time.frame.map))
+
+}
+
+rbindlist.unique <- function(x){
+  y <- rbindlist(x, use.names = TRUE, fill = TRUE)
+  y <- distinct(y)
+  return(y)
+}
+
+entries <- rbindlist.unique(entries.df.list)
+users <- rbindlist.unique(users.df.list)
+field.map <- rbindlist.unique(field.map.df.list)
+time.period.map <- rbindlist.unique(time.period.map.df.list)
+time.frame.map <- rbindlist.unique(time.frame.map.df.list)
+
 
 # scrub column names for BigQuery
 names(entries) <- clean.names(names(entries))
