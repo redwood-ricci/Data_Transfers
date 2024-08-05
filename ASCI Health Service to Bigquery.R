@@ -115,8 +115,12 @@ upload_jscape_to_bigquery(jscape.con,'JSCAPE_Health_Service','api_key','creation
 upload_jscape_to_bigquery(jscape.con,'JSCAPE_Health_Service','eula_confirmation','confirmationDate','eula_confirmation')
 # upload_jscape_to_bigquery(jscape.con,'JSCAPE_Health_Service','product_statistics','creationDate','product_statistics')
 
+# get list of IDs already uploaded to Bigquery
+jscape.in.BQ <- query.bq("select id from JSCAPE_Health_Service.product_statistics")
+
 # convert JSON data from Product Statisticts to Data Frames for Upload
 zzz <- dbGetQuery(jscape.con,paste0('select * from product_statistics'))
+zzz <- zzz[which(!(zzz$id %in% jscape.in.BQ$id)),]
 zzz$creationDate <- as_datetime(zzz$creationDate/1000)
 
 library(jsonlite)
@@ -148,6 +152,10 @@ return(r)
 }
 
 
+df.master.list <- list()
+df.server.list <- list()
+df.server.domain.list <- list()
+df.gateway.list <- list()
 
 # i <- 3
 # rm(df.master,df.server,df.server.domain,df.gateway)
@@ -211,11 +219,19 @@ if(nrow(df.gateway.data)>0){
 zzz$data <- NULL
 
 df.master$creationDate <- as_datetime(as.numeric(df.master$creationDate)/1000)
-upload.to.bigquery(df.master,'JSCAPE_Health_Service','PS_Data')
-upload.to.bigquery(df.gateway,'JSCAPE_Health_Service','PS_Gateway')
-upload.to.bigquery(df.server,'JSCAPE_Health_Service','PS_Server')
-upload.to.bigquery(df.server.domain,'JSCAPE_Health_Service','PS_Server_Domain')
-upload.to.bigquery(zzz,'JSCAPE_Health_Service','product_statistics')
+upload.if.exists <- function(x,dataset,table,write_disposition = "Write Truncate"){
+  # x <- df.sync  
+  if(exists(deparse(substitute(x))) && nrow(x) >0){
+      upload.to.bigquery(x,dataset,table,write_disposition)
+    }else{
+      print(paste0(deparse(substitute(x))," Does Not Exist"))
+    }
+}
+upload.if.exists(df.master,'JSCAPE_Health_Service','PS_Data',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.gateway,'JSCAPE_Health_Service','PS_Gateway',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.server,'JSCAPE_Health_Service','PS_Server',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.server.domain,'JSCAPE_Health_Service','PS_Server_Domain',write_disposition = "WRITE_APPEND")
+upload.if.exists(zzz,'JSCAPE_Health_Service','product_statistics',write_disposition = "WRITE_APPEND")
 # upload.to.bigquery(df.server.data,'JSCAPE_Health_Service','PS_Server_Data')
 rm(df.master,df.gateway,df.server,df.server.domain,master.data,zzz)
 
@@ -224,6 +240,10 @@ upload_jscape_to_bigquery(cerb.con,'Cerberus_Health_Service','api_key','creation
 
 zzz <- dbGetQuery(cerb.con,paste0('select * from product_statistics'))
 zzz$creationDate <- as_datetime(zzz$creationDate)
+# drop IDs that have already been uploaded
+cerberus_ids <- query.bq("select product_statistics_id from `Cerberus_Health_Service.Product_Statistics`")
+zzz <- zzz[which(!(zzz$id %in% cerberus_ids$product_statistics_id)),]
+
 convert.unix.to.date <- function(x){
   # x <- 1680201640
   x <- as.numeric(x)
@@ -353,15 +373,15 @@ names(df.auth.list) <- clean.names(names(df.auth.list))
 names(df.auth) <- clean.names(names(df.auth))
 names(df.master) <- clean.names(names(df.master))
 
-upload.to.bigquery(df.sync,'Cerberus_Health_Service','sync')
-upload.to.bigquery(df.status,'Cerberus_Health_Service','status')
-upload.to.bigquery(df.interfaces,'Cerberus_Health_Service','interfaces')
-upload.to.bigquery(df.events,'Cerberus_Health_Service','events')
-upload.to.bigquery(df.events.rules,'Cerberus_Health_Service','event_rules')
-upload.to.bigquery(df.config,'Cerberus_Health_Service','config')
-upload.to.bigquery(df.auth.list,'Cerberus_Health_Service','auth_list')
-upload.to.bigquery(df.auth,'Cerberus_Health_Service','auth')
-upload.to.bigquery(df.master,'Cerberus_Health_Service','Product_Statistics')
+upload.if.exists(df.sync,'Cerberus_Health_Service','sync',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.status,'Cerberus_Health_Service','status',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.interfaces,'Cerberus_Health_Service','interfaces',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.events,'Cerberus_Health_Service','events',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.events.rules,'Cerberus_Health_Service','event_rules',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.config,'Cerberus_Health_Service','config',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.auth.list,'Cerberus_Health_Service','auth_list',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.auth,'Cerberus_Health_Service','auth',write_disposition = "WRITE_APPEND")
+upload.if.exists(df.master,'Cerberus_Health_Service','Product_Statistics',write_disposition = "WRITE_APPEND")
 
 
 dbDisconnect(con)

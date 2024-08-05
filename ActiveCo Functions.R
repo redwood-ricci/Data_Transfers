@@ -119,13 +119,13 @@ get.sf.object <- function(object='list',instance='Redwood', clean.names=TRUE){
 bq_auth(path = "activeco-4ac3f78ba057.json")
 # gs4_auth(path = "drive-activeco-d876f1f4439f.json") # service account needs direct access to each sheet. How to share entire drive with service account?
 
-upload.to.bigquery <- function(upload,dataset,table){
+upload.to.bigquery <- function(upload,dataset,table,write_disposition = "WRITE_TRUNCATE"){
   print(paste0("Uploading to Bigquery: ",dataset,".",table))
   data.set.bq <- bq_dataset(billing,dataset) # create redwood dataset
   table.bq <- bq_table(data.set.bq, table)
   bq_perform_upload(table.bq,fields = upload, values = upload,
                     create_disposition = "CREATE_IF_NEEDED",
-                    write_disposition = "WRITE_TRUNCATE")
+                    write_disposition = write_disposition)
   
 }
 
