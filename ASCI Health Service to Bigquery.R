@@ -222,7 +222,7 @@ df.master$creationDate <- as_datetime(as.numeric(df.master$creationDate)/1000)
 upload.if.exists <- function(x,dataset,table,write_disposition = "Write Truncate"){
   # x <- df.sync  
   if(exists(deparse(substitute(x))) && nrow(x) >0){
-      upload.to.bigquery(x,dataset,table,write_disposition)
+      upload.to.bigquery(x,dataset,table,write_disposition = write_disposition)
     }else{
       print(paste0(deparse(substitute(x))," Does Not Exist"))
     }
